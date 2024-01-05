@@ -12,7 +12,7 @@ Setting up an application deploy
 
 2. Install dependencies: npm i
 
-3. Run npm run dev
+3. Run: npm run dev
 
 ## Render.com deployment
 
