@@ -1,10 +1,4 @@
-# Lab 1
-
-Learn how to set up an environment typical for backend development
-
-Develop the healthcheck endpoint of a web application
-
-Setting up an application deploy
+# Lab 2
 
 ### Getting started
 
