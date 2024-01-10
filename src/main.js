@@ -3,6 +3,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import healthCheck from './controllers/healthCheck.js';
 import users from './controllers/users.js';
+import categories from './controllers/categories.js';
 
 config();
 
@@ -13,7 +14,11 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/healthCheck', healthCheck);
-app.use('/users', users)
+
+app.use('/users', users);
+
+app.use('/categories', categories);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
