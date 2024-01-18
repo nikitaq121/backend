@@ -1,16 +1,16 @@
 const { Router } = require('express');
-const Categories = require('../models/categoriesModel');
+const Currencies = require('../models/currencyModel');
 const routes = Router();
 
 routes.post('/', async (req, res) => {
   try {
-    const { name } = req.body;
-
-    const newCategory = await Categories.create({
+    let { name } = req.body;
+    name = name.toUpperCase();
+    const newCurrency = await Currencies.create({
       name,
     });
 
-    res.status(200).json(newCategory);
+    res.status(200).json(newCurrency);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: error.message });
@@ -19,8 +19,8 @@ routes.post('/', async (req, res) => {
 
 routes.get('/', async (req, res) => {
   try {
-    const categories = await Categories.findAll();
-    res.status(200).json(categories);
+    const currencies = await Currencies.findAll();
+    res.status(200).json(currencies);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -30,14 +30,14 @@ routes.get('/', async (req, res) => {
 routes.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const category = await Categories.findByPk(id);
+    const currency = await Currencies.findByPk(id);
 
-    if (!category) {
-      res.status(404).json({ error: 'Category not found' });
+    if (!currency) {
+      res.status(404).json({ error: 'Currency not found' });
       return;
     }
 
-    res.status(200).json(category);
+    res.status(200).json(currency);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -47,20 +47,20 @@ routes.get('/:id', async (req, res) => {
 routes.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const category = await Categories.findByPk(id);
+    const currency = await Currencies.findByPk(id);
 
-    if (!category) {
-      res.status(404).json({ error: 'Category not found' });
+    if (!currency) {
+      res.status(404).json({ error: 'Currency not found' });
       return;
     }
 
-    await Categories.destroy({
+    await Currencies.destroy({
       where: {
-        id: category.id,
+        id: currency.id,
       },
     });
 
-    res.status(200).json(category);
+    res.status(200).json(currency);
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({ error: 'Internal Server Error' });

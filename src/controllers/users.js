@@ -1,49 +1,108 @@
-import { Router } from "express";
-import crypto from "crypto";
-
+const { Router } = require('express');
+const Users = require('../models/usersModel');
+const Currencies = require('../models/currencyModel');
 const routes = Router();
-const users = [];
 
-routes.post("/", (req, res) => {
-  const { name, email } = req.body;
-  const user = { name, email, id: crypto.randomUUID() };
-  users.push(user);
-  res.status(201).send(user);
-});
+routes.post('/', async (req, res) => {
+  try {
+    let { name, currency } = req.body;
 
-routes.get("/", (req, res) => {
-  res.status(200).json(users);
-});
+    if (currency === null || currency === undefined) {
+      const firstCurrency = await Currencies.findOne();
+      if (firstCurrency === null || firstCurrency === undefined) {
+        throw new Error('No currencies found in the database.');
+      }
 
-routes.get("/:id", (req, res) => {
-  const { id } = req.params;
-  const user = users.find((user) => user.id === id);
-  if (!user) {
-    res.status(404).send({ error: "User not found" });
+      currency = firstCurrency.dataValues.name;
+    } else {
+      currency = currency.toUpperCase();
+    }
+
+    const newUser = await Users.create({
+      name,
+      currency,
+    });
+
+    res.status(200).json(newUser);
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: error.message });
   }
-  res.status(200).send(user);
 });
 
-routes.put("/:id", (req, res) => {
-  const { id } = req.params;
-  const { name, email } = req.body;
-  const userIndex = users.findIndex((user) => user.id === id);
-  if (userIndex < 0) {
-    res.status(404).send({ error: "User not found" });
+routes.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, currency } = req.body;
+    const user = await Users.findByPk(id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    } else {
+      await Users.update(
+        { name, currency },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+    }
+    res.status(200).json('Information updated successfully');
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: error.message });
   }
-  const user = { name, email, id };
-  users[userIndex] = user;
-  res.status(200).send(user);
 });
 
-routes.delete("/:id", (req, res) => {
-  const { id } = req.params;
-  const userIndex = users.findIndex((user) => user.id === id);
-  if (userIndex < 0) {
-    res.status(404).send({ error: "User not found" });
+routes.get('/', async (req, res) => {
+  try {
+    const users = await Users.findAll();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-  users.splice(userIndex, 1);
-  res.status(204).send();
 });
 
-export default routes;
+routes.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findByPk(id);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+routes.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findByPk(id);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    await Users.destroy({
+      where: {
+        id: user.id,
+      },
+    });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+module.exports = routes;
