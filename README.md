@@ -1,5 +1,6 @@
-# Lab 2
-
+# Lab 4
+### Variant
+16 % 3 = 1 => варіант з валютами
 ### Getting started
 
 1. Clone repository: git clone https://github.com/nikitaq121/backend
