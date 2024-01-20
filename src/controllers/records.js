@@ -6,8 +6,9 @@ const routes = Router();
 
 routes.post('/', async (req, res) => {
   try {
-    let { userId, categoryId, expenseSum, currency } = req.body;
-    console.log(categoryId);
+    let { categoryId, expenseSum, currency } = req.body;
+    const userId = req.user.id;
+
     const category = await Categories.findByPk(categoryId);
     const user = await Users.findByPk(userId);
     if (!category || !user) {
@@ -33,7 +34,10 @@ routes.post('/', async (req, res) => {
 routes.get('/', async (req, res) => {
   try {
     const { userId, categoryId } = req.query;
-
+    if (+userId !== +req.user.id) {
+      res.status(403).json({ error: 'Access denied for this action' });
+      return;
+    }
     let records;
 
     if (userId && categoryId) {
@@ -68,7 +72,10 @@ routes.get('/:id', async (req, res) => {
       res.status(404).json({ error: 'Record not found' });
       return;
     }
-
+    if (+record.userId !== +req.user.id) {
+      res.status(403).json({ error: 'Access denied for this action' });
+      return;
+    }
     res.status(200).json(record);
   } catch (error) {
     console.error('Error', error);
@@ -86,6 +93,10 @@ routes.delete('/:id', async (req, res) => {
       return;
     }
 
+    if (+record.userId !== +req.user.id) {
+      res.status(403).json({ error: 'Access denied for this action' });
+      return;
+    }
     await Records.destroy({
       where: {
         id: record.id,

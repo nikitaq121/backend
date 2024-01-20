@@ -6,6 +6,7 @@ const users = require('./controllers/users');
 const categories = require('./controllers/categories');
 const records = require('./controllers/records');
 const currencies = require('./controllers/currencies');
+const authControl = require('./authorizationMiddleware.js');
 
 config();
 
@@ -19,14 +20,14 @@ app.use('/healthCheck', healthCheck);
 
 app.use('/users', users);
 
-app.use('/categories', categories);
+app.use('/categories', authControl, categories);
 
-app.use('/records', records);
+app.use('/records', authControl, records);
 
-app.use('/currencies', currencies);
+app.use('/currencies', authControl, currencies);
 
 const PORT = process.env.PORT || 5000;
-//console.log(process.env.PASSWORD);
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
